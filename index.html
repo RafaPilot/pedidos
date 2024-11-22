@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="login-section">
+    <h1>Iniciar Sesión</h1>
+    <form id="login-form">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Iniciar Sesión</button>
+    </form>
+    <p>¿No tienes cuenta? <a href="#" id="register-link">Regístrate aquí</a></p>
+  </div>
+  <div id="register-section" style="display:none;">
+    <h1>Regístrate</h1>
+    <form id="register-form">
+      <input type="text" id="name" placeholder="Nombre" required>
+      <input type="email" id="email-register" placeholder="Email" required>
+      <input type="password" id="password-register" placeholder="Contraseña" required>
+      <button type="submit">Registrarse</button>
+    </form>
+  </div>
+  <div id="menu-section" style="display:none;">
+    <h1>Bienvenido al Menú Principal</h1>
+    <div id="welcome-message"></div>
+    <button id="logout-button">Cerrar Sesión</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgZXFc7G66eFERtb9ahkMIyPa1QQR8zOM",
+      authDomain: "pedidos-70482.firebaseapp.com",
+      projectId: "pedidos-70482",
+      storageBucket: "pedidos-70482.appspot.com",
+      messagingSenderId: "482283129477",
+      appId: "1:482283129477:web:8286684b8e5e9e134ab7ec",
+      measurementId: "G-BE8LV1LKSS",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const loginForm = document.getElementById("login-form");
+
+    loginForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "inicio.html";
+      } catch (error) {
+        alert(`Error al iniciar sesión: ${error.message}`);
+        console.error(error.message);
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "inicio.html";
+      }
+    });
+  </script>
+</body>
+</html>

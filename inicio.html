@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantalla de Inicio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Bienvenida Mariam</h1>
+    <button id="logout-button">Cerrar Sesión</button>
+  </header>
+  <main>
+    <section id="menu-principal">
+      <button class="navegacion-boton" data-ruta="pedidos.html">Pedidos</button>
+      <button class="navegacion-boton" data-ruta="flujo-caja.html">Flujo de Caja</button>
+      <button class="navegacion-boton" data-ruta="estado-pedido.html">Estado de los pedidos</button>
+      <button class="navegacion-boton" data-ruta="clientes.html">Clientes</button>
+      <button class="navegacion-boton" data-ruta="cuentas-por-cobrar.html">Cuentas por Cobrar</button>
+      <button class="navegacion-boton" data-ruta="dashboard.html">Dashboard</button>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js';
+    import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgZXFc7G66eFERtb9ahkMIyPa1QQR8zOM",
+      authDomain: "pedidos-70482.firebaseapp.com",
+      projectId: "pedidos-70482",
+      storageBucket: "pedidos-70482.appspot.com",
+      messagingSenderId: "482283129477",
+      appId: "1:482283129477:web:8286684b8e5e9e134ab7ec",
+      measurementId: "G-BE8LV1LKSS",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      }
+    });
+
+    const logoutButton = document.getElementById("logout-button");
+    logoutButton?.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        alert("Sesión cerrada correctamente.");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert(`Error al cerrar sesión: ${error.message}`);
+      }
+    });
+
+    const botonesNavegacion = document.querySelectorAll(".navegacion-boton");
+    botonesNavegacion.forEach((boton) => {
+      boton.addEventListener("click", () => {
+        const ruta = boton.getAttribute("data-ruta");
+        if (ruta) {
+          window.location.href = `./pages/${ruta}`;
+        }
+      });
+    });
+  </script>
+  <section>
+    <img src="images/logo.png" alt="Logo de Sobreregalo" class="logo">
+    <p>Desarrollado por Rafael para Mariam</p>
+  </section>
+</body>
+</html>
