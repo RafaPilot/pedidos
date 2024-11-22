@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Pedidos</h1>
+  </header>
+  <main>
+    <section>
+      <form id="pedido-form">
+        <label for="cliente">Cliente</label>
+        <input type="text" id="cliente" placeholder="Nombre del cliente" list="clientes-list" required>
+        <datalist id="clientes-list"></datalist>
+
+        <label for="producto">Producto</label>
+        <input type="text" id="producto" placeholder="Producto solicitado" required>
+
+        <label for="cantidad">Cantidad</label>
+        <input type="number" id="cantidad" placeholder="Cantidad solicitada" required>
+
+        <label for="fecha">Fecha del pedido</label>
+        <input type="date" id="fecha" required>
+
+        <label for="monto">Monto</label>
+        <input type="number" id="monto" placeholder="Monto del pedido" step="0.01" required>
+
+        <button type="submit">Registrar Pedido</button>
+      </form>
+
+      <h2>Pedidos Registrados</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-pedidos"></tbody>
+      </table>
+      <a href="../index.html" class="back-link">Volver al Inicio</a>
+    </section>
+  </main>
+  <script type="module" src="../pedidos.js"></script>
+</body>
+</html>

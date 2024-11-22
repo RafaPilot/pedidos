@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado de Pedido</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Estado de Pedidos</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Pedidos y Estado</h2>
+
+      <!-- Selector para filtrar pedidos por estado -->
+      <label for="filtro-estado">Filtrar por estado:</label>
+      <select id="filtro-estado">
+        <option value="Todos">Todos</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Completado">Completado</option>
+      </select>
+
+      <table class="estado-pedidos-tabla">
+        <thead>
+          <tr>
+            <th>-</th>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            
+            
+          </tr>
+        </thead>
+        <tbody id="tabla-estado-pedidos"></tbody>
+      </table>
+      <a href="../index.html" class="back-link">Volver al Inicio</a>
+    </section>
+  </main>
+  <script type="module" src="../estado-pedido.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Dashboard</h1>
+  </header>
+  <main>
+    <section class="dashboard-summary">
+      <div class="summary-card" id="total-pedidos">Total Pedidos: </div>
+      <div class="summary-card" id="pedidos-completados">Pedidos Completados: </div>
+      <div class="summary-card" id="pedidos-pendientes">Pedidos Pendientes: </div>
+      <div class="summary-card" id="total-ingresos">Total Ingresos: $</div>
+    </section>
+
+    <section class="dashboard-charts">
+      <div>
+        <canvas id="estadoPedidosChart"></canvas>
+      </div>
+      <div>
+        <canvas id="tendenciaPedidosChart"></canvas>
+      </div>
+      <div>
+        <canvas id="productosVendidosChart"></canvas>
+      </div>
+    </section>
+
+    <a href="../index.html" class="back-link">Volver al Inicio</a>
+  </main>
+  <script type="module" src="../dashboard.js"></script>
+</body>
+</html>

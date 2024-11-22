@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Clientes</h1>
+  </header>
+  <main>
+    <section>
+      <form id="clientes-form">
+        <label for="nombre">Nombre del Cliente</label>
+        <input type="text" id="nombre" placeholder="Nombre completo" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Correo electrónico" required>
+        <label for="telefono">Teléfono</label>
+        <input type="text" id="telefono" placeholder="Número de teléfono" required>
+        <button type="submit">Registrar Cliente</button>
+      </form>
+      <h2>Clientes Registrados</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-clientes"></tbody>
+      </table>
+      <a href="../index.html" class="back-link">Volver al Inicio</a>
+    </section>
+  </main>
+  <script>
+    // Referencia a la base de datos de clientes
+    const airtableUrl = 'https://api.airtable.com/v0/appR2YxcBf4yz2g9t/Clientes';
+    const airtableApiKey = 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc';
+
+    const form = document.getElementById('clientes-form');
+    const tablaClientes = document.getElementById('tabla-clientes');
+
+    // Cargar clientes al iniciar
+    async function cargarClientes() {
+      const response = await fetch(airtableUrl, {
+        headers: { Authorization: `Bearer ${airtableApiKey}` },
+      });
+      const data = await response.json();
+      tablaClientes.innerHTML = '';
+      data.records.forEach(record => {
+        const { Nombre, Email, Telefono } = record.fields;
+        const row = `
+          <tr>
+            <td>${Nombre}</td>
+            <td>${Email}</td>
+            <td>${Telefono}</td>
+            <td><button onclick="eliminarCliente('${record.id}')">Eliminar</button></td>
+          </tr>
+        `;
+        tablaClientes.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    // Registrar nuevo cliente
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('nombre').value;
+      const email = document.getElementById('email').value;
+      const telefono = document.getElementById('telefono').value;
+
+      const nuevoCliente = {
+        fields: {
+          Nombre: nombre,
+          Email: email,
+          Telefono: telefono,
+        },
+      };
+
+      await fetch(airtableUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${airtableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(nuevoCliente),
+      });
+
+      form.reset();
+      cargarClientes();
+    });
+
+    // Eliminar cliente
+    async function eliminarCliente(id) {
+      await fetch(`${airtableUrl}/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${airtableApiKey}` },
+      });
+      cargarClientes();
+    }
+
+    // Inicializar
+    cargarClientes();
+  </script>
+</body>
+</html>

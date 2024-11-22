@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo de Caja</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Flujo de Caja</h1>
+  </header>
+  <main>
+    <section>
+      <form id="flujo-caja-form">
+        <label for="concepto">Concepto</label>
+        <input type="text" id="concepto" placeholder="Descripción del concepto" required>
+
+        <label for="monto">Monto</label>
+        <input type="number" id="monto" placeholder="Monto en Bs o USD" required>
+
+        <label for="tipo">Tipo</label>
+        <select id="tipo" required>
+          <option value="">Selecciona el tipo</option>
+          <option value="entrada">Entrada</option>
+          <option value="salida">Salida</option>
+        </select>
+
+        <!-- Campos condicionales -->
+        <div id="medio-pago-div" style="display: none;">
+          <label for="medio-pago">Medio de Pago</label>
+          <select id="medio-pago">
+            <option value="efectivo">Efectivo</option>
+            <option value="banco">Banco Nacional</option>
+            <option value="zelle">Zelle</option>
+          </select>
+        </div>
+
+        <div id="detalle-salida-div" style="display: none;">
+          <label for="detalle-salida">Detalle Salida</label>
+          <select id="detalle-salida">
+            <option value="Compra Material para sublimar">Compra Material para sublimar</option>
+            <option value="Compra de prenda">Compra de prenda</option>
+            <option value="Pagos otros">Pagos otros</option>
+          </select>
+        </div>
+
+        <div id="pedido-relacionado-div" style="display: none;">
+          <label for="pedido-relacionado">Pedido Relacionado</label>
+          <select id="pedido-relacionado">
+            <option value="">Selecciona un Pedido</option>
+            <!-- Los pedidos se cargarán dinámicamente aquí -->
+          </select>
+        </div>
+
+        <button type="submit">Registrar Movimiento</button>
+      </form>
+
+      <h2>Historial de Movimientos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Monto</th>
+            <th>Tipo</th>
+            <th>Medio de Pago</th>
+            <th>Pedido Relacionado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-flujo-caja"></tbody>
+      </table>
+
+      <h2>Resumen de Saldo</h2>
+      <div id="resumen-saldo">
+        <p>Efectivo: <span id="saldo-efectivo">0</span></p>
+        <p>Banco Nacional: <span id="saldo-banco">0</span></p>
+        <p>Zelle: <span id="saldo-zelle">0</span></p>
+      </div>
+
+      <a href="../index.html" class="back-link">Volver al Inicio</a>
+    </section>
+  </main>
+  <script type="module" src="../flujo-caja.js"></script>
+</body>
+</html>
