@@ -432,7 +432,7 @@ canvas {
   height: auto;
 }
 /* Estilos específicos para la página de inicio */
-#logo {
+.logo {
   display: block;
   margin: 0 auto;
   max-width: 50px;
