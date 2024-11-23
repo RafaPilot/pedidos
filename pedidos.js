@@ -23,8 +23,9 @@ async function cargarClientes() {
 async function cargarPedidos() {
   try {
     const pedidos = await obtenerRegistros('Pedidos');
+    const ultimosPedidos = pedidos.slice(-4).reverse(); // Obtener los últimos 4 registros
     tablaPedidos.innerHTML = '';
-    pedidos.forEach(pedido => {
+    ultimosPedidos.forEach(pedido => {
       const { Cliente, Producto, Cantidad, Fecha, Monto } = pedido.fields;
       const row = `
         <tr>
@@ -33,9 +34,40 @@ async function cargarPedidos() {
           <td>${Cantidad || ''}</td>
           <td>${Fecha || ''}</td>
           <td>${Monto ? `$${Monto.toFixed(2)}` : ''}</td>
+          <td>
+            <button 
+              class="pagar-btn" 
+              data-id="${pedido.id}" 
+              data-cliente="${Cliente || ''}" 
+              data-producto="${Producto || ''}" 
+              data-monto="${Monto || ''}"
+            >
+              ¿Pagar?
+            </button>
+          </td>
         </tr>
       `;
       tablaPedidos.insertAdjacentHTML('beforeend', row);
+    });
+
+    // Agregar evento a los botones ¿Pagar?
+    document.querySelectorAll('.pagar-btn').forEach(boton => {
+      boton.addEventListener('click', (e) => {
+        const { id, cliente, producto, monto } = e.target.dataset;
+
+        if (id && cliente && producto && monto) {
+          // Guardar datos en localStorage para flujo de caja
+          localStorage.setItem('tipoMovimiento', 'entrada');
+          localStorage.setItem(
+            'pedidoParaPago',
+            JSON.stringify({ id, cliente, producto, monto })
+          );
+          // Redirigir a la pantalla de flujo de caja
+          window.location.href = './flujo-caja.html';
+        } else {
+          console.error('Datos incompletos para redirigir al flujo de caja.');
+        }
+      });
     });
   } catch (error) {
     console.error('Error cargando pedidos:', error);
