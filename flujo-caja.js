@@ -42,7 +42,7 @@ tipoSelect.addEventListener('change', () => {
   }
 });
 
-// Cargar pedidos en el dropdown (filtrar por "Pendiente" y "Completado")
+// Cargar pedidos en el dropdown
 async function cargarPedidos() {
   const pedidos = await obtenerRegistros('Estado de Pedido');
   pedidoRelacionadoSelect.innerHTML = '<option value="">Sin Pedido</option>';
@@ -59,6 +59,22 @@ async function cargarPedidos() {
       pedidoRelacionadoSelect.appendChild(option);
     }
   });
+
+  // Verificar si se redirigió con datos
+  const tipoMovimiento = localStorage.getItem('tipoMovimiento');
+  const pedidoRelacionadoId = localStorage.getItem('pedidoRelacionado');
+
+  if (tipoMovimiento && pedidoRelacionadoId) {
+    tipoSelect.value = tipoMovimiento;
+    pedidoRelacionadoSelect.value = pedidoRelacionadoId;
+    medioPagoDiv.style.display = 'block';
+    detalleSalidaDiv.style.display = 'none';
+    pedidoRelacionadoSelect.parentElement.style.display = 'block';
+
+    // Limpiar `localStorage` para evitar conflictos futuros
+    localStorage.removeItem('tipoMovimiento');
+    localStorage.removeItem('pedidoRelacionado');
+  }
 }
 
 // Actualizar resumen de saldos
