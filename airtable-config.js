@@ -1,45 +1,49 @@
-const airtableUrl = 'https://api.airtable.com/v0/appR2YxcBf4yz2g9t';
 const airtableApiKey = 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc';
+const airtableBaseId = 'appR2YxcBf4yz2g9t';
+const tableName = 'Flujo de Caja';
 
-// Función genérica para interactuar con Airtable
-async function airtableFetch(url, options = {}) {
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${airtableApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    ...options,
-  });
+const airtableFetch = async (method, endpoint, body = null) => {
+    const url = `https://api.airtable.com/v0/${airtableBaseId}/${endpoint}`;
+    const headers = {
+        Authorization: `Bearer ${airtableApiKey}`,
+        'Content-Type': 'application/json',
+    };
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Error en Airtable: ${error}`);
-  }
+    const options = {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null,
+    };
 
-  return response.json();
-}
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            throw new Error(`Error en Airtable: ${JSON.stringify(errorResponse)}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw error; // Propaga el error para que pueda manejarse en otras partes del código.
+    }
+};
 
-// Función para agregar un registro
-export async function agregarRegistro(tabla, datos) {
-  const url = `${airtableUrl}/${tabla}`;
-  return airtableFetch(url, {
-    method: 'POST',
-    body: JSON.stringify(datos), // Quitamos el envoltorio adicional
-  });
-}
+// Agregar registro
+const agregarRegistro = async (registro) => {
+    try {
+        // Convertir la fecha al formato ISO 8601 (Airtable lo requiere)
+        if (registro.fields.Fecha) {
+            registro.fields.Fecha = new Date(registro.fields.Fecha).toISOString().split('T')[0];
+        }
 
-// Función para obtener registros
-export async function obtenerRegistros(tabla) {
-  const url = `${airtableUrl}/${tabla}`;
-  const data = await airtableFetch(url);
-  return data.records;
-}
+        const response = await airtableFetch('POST', tableName, { records: [registro] });
+        console.log('Registro agregado:', response);
+        return response;
+    } catch (error) {
+        console.error('Error al agregar el registro:', error);
+        throw error;
+    }
+};
 
-// Función para actualizar un registro
-export async function actualizarRegistro(tabla, id, datos) {
-  const url = `${airtableUrl}/${tabla}/${id}`;
-  return airtableFetch(url, {
-    method: 'PATCH',
-    body: JSON.stringify(datos),
-  });
-}
+export { agregarRegistro };
+
