@@ -1,5 +1,6 @@
 import { obtenerRegistros, agregarRegistro } from './airtable-config.js';
 
+// Referencias al DOM
 const flujoCajaForm = document.getElementById('flujo-caja-form');
 const tipoSelect = document.getElementById('tipo');
 const medioPagoDiv = document.getElementById('medio-pago-div');
@@ -10,65 +11,59 @@ const tablaFlujoCaja = document.getElementById('tabla-flujo-caja');
 const saldoEfectivo = document.getElementById('saldo-efectivo');
 const saldoBanco = document.getElementById('saldo-banco');
 const saldoZelle = document.getElementById('saldo-zelle');
-const mensajeExito = document.createElement('div');
-mensajeExito.id = 'mensaje-exito';
-document.body.appendChild(mensajeExito);
-
-// Estilo para el mensaje de éxito
-mensajeExito.style.position = 'fixed';
-mensajeExito.style.top = '10px';
-mensajeExito.style.right = '10px';
-mensajeExito.style.padding = '10px 20px';
-mensajeExito.style.backgroundColor = '#4CAF50';
-mensajeExito.style.color = '#fff';
-mensajeExito.style.borderRadius = '5px';
-mensajeExito.style.display = 'none';
 
 // Mostrar/Ocultar campos según el tipo seleccionado
 tipoSelect.addEventListener('change', () => {
   const tipo = tipoSelect.value;
-
-  if (tipo === 'entrada') {
-    medioPagoDiv.style.display = 'block';
-    detalleSalidaDiv.style.display = 'none';
-    pedidoRelacionadoInput.parentElement.style.display = 'block';
-  } else if (tipo === 'salida') {
-    medioPagoDiv.style.display = 'block';
-    detalleSalidaDiv.style.display = 'block';
-    pedidoRelacionadoInput.parentElement.style.display = 'none';
-  } else {
-    medioPagoDiv.style.display = 'none';
-    detalleSalidaDiv.style.display = 'none';
-    pedidoRelacionadoInput.parentElement.style.display = 'none';
-  }
+  medioPagoDiv.style.display = tipo ? 'block' : 'none';
+  detalleSalidaDiv.style.display = tipo === 'salida' ? 'block' : 'none';
+  pedidoRelacionadoInput.parentElement.style.display = tipo === 'entrada' ? 'block' : 'none';
 });
 
 // Cargar pedidos en el input de búsqueda
 async function cargarPedidos() {
   const pedidos = await obtenerRegistros('Estado de Pedido');
-  const pedidosFiltrados = pedidos.filter(pedido => pedido.fields.Estado === 'Pendiente' || pedido.fields.Estado === 'Completado');
+  const pedidosFiltrados = pedidos.filter(pedido => ['Pendiente', 'Completado'].includes(pedido.fields.Estado));
 
-  // Autocompletar con los pedidos disponibles
   pedidoRelacionadoInput.addEventListener('input', () => {
     const query = pedidoRelacionadoInput.value.toLowerCase();
     pedidoLista.innerHTML = '';
-    
-    const resultados = pedidosFiltrados.filter(pedido =>
-      `${pedido.fields.Cliente} - ${pedido.fields.Producto} (${pedido.fields.Estado})`.toLowerCase().includes(query)
-    );
 
-    resultados.forEach(pedido => {
-      const li = document.createElement('li');
-      li.textContent = `${pedido.fields.Cliente} - ${pedido.fields.Producto} (${pedido.fields.Estado})`;
-      li.dataset.id = pedido.id;
-      li.addEventListener('click', () => {
-        pedidoRelacionadoInput.value = li.textContent;
-        pedidoRelacionadoInput.dataset.id = li.dataset.id;
-        pedidoLista.innerHTML = ''; // Limpiar lista después de seleccionar
-      });
-      pedidoLista.appendChild(li);
+    pedidosFiltrados.forEach(pedido => {
+      if (`${pedido.fields.Cliente} - ${pedido.fields.Producto}`.toLowerCase().includes(query)) {
+        const li = document.createElement('li');
+        li.textContent = `${pedido.fields.Cliente} - ${pedido.fields.Producto}`;
+        li.dataset.id = pedido.id;
+        li.addEventListener('click', () => {
+          pedidoRelacionadoInput.value = li.textContent;
+          pedidoRelacionadoInput.dataset.id = li.dataset.id;
+          pedidoLista.innerHTML = '';
+        });
+        pedidoLista.appendChild(li);
+      }
     });
   });
+}
+
+// Cargar movimientos recientes en la tabla
+async function cargarHistorial() {
+  const movimientos = await obtenerRegistros('Flujo de Caja');
+  const ultimosMovimientos = movimientos.slice(-3).reverse();
+
+  tablaFlujoCaja.innerHTML = '';
+  ultimosMovimientos.forEach(mov => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${mov.fields.Concepto || ''}</td>
+      <td>${mov.fields.Monto || 0}</td>
+      <td>${mov.fields.Tipo || ''}</td>
+      <td>${mov.fields['Medio de Pago'] || ''}</td>
+      <td>${mov.fields.Fecha || ''}</td>
+    `;
+    tablaFlujoCaja.appendChild(row);
+  });
+
+  actualizarResumen(movimientos);
 }
 
 // Actualizar resumen de saldos
@@ -96,28 +91,6 @@ function actualizarResumen(movimientos) {
   saldoZelle.textContent = zelle.toFixed(2);
 }
 
-// Cargar movimientos en el historial (solo últimos 3)
-async function cargarHistorial() {
-  const movimientos = await obtenerRegistros('Flujo de Caja');
-  const ultimosMovimientos = movimientos.slice(-3).reverse(); // Últimos 3 movimientos
-  tablaFlujoCaja.innerHTML = ''; // Limpiar tabla
-
-  ultimosMovimientos.forEach(mov => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${mov.fields.Concepto || ''}</td>
-      <td>${mov.fields.Monto || 0}</td>
-      <td>${mov.fields.Tipo || ''}</td>
-      <td>${mov.fields['Medio de Pago'] || ''}</td>
-      <td>${mov.fields['Pedido Relacionado'] || ''}</td>
-      <td>${mov.fields.Fecha || ''}</td>
-    `;
-    tablaFlujoCaja.appendChild(row);
-  });
-
-  actualizarResumen(movimientos);
-}
-
 // Enviar formulario de flujo de caja
 flujoCajaForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -126,13 +99,8 @@ flujoCajaForm.addEventListener('submit', async (e) => {
   const monto = parseFloat(document.getElementById('monto').value);
   const tipo = tipoSelect.value;
   const medioPago = document.getElementById('medio-pago').value;
-  const detalleSalida = document.getElementById('detalle-salida').value;
-  const pedidoRelacionadoId = pedidoRelacionadoInput.dataset.id;
-
-  if (monto <= 0) {
-    alert('Por favor ingrese un monto válido.');
-    return;
-  }
+  const detalleSalida = document.getElementById('detalle-salida').value || null;
+  const pedidoRelacionadoId = pedidoRelacionadoInput.dataset.id || null;
 
   const registro = {
     fields: {
@@ -140,23 +108,23 @@ flujoCajaForm.addEventListener('submit', async (e) => {
       Monto: monto,
       Tipo: tipo,
       'Medio de Pago': medioPago,
-      'Detalle Salida': tipo === 'salida' ? detalleSalida : undefined,
-      'Pedido Relacionado': pedidoRelacionadoId ? pedidoRelacionadoId : undefined,
-      Fecha: new Date().toISOString(),
-    }
+      'Detalle Salida': detalleSalida,
+      'Pedido Relacionado': pedidoRelacionadoId,
+      Fecha: new Date().toISOString().split('T')[0], // Solo la fecha
+    },
   };
 
-  await agregarRegistro('Flujo de Caja', registro);
-  mensajeExito.textContent = 'Movimiento registrado con éxito';
-  mensajeExito.style.display = 'block';
-
-  setTimeout(() => {
-    mensajeExito.style.display = 'none';
-  }, 3000);
-
-  flujoCajaForm.reset();
-  cargarHistorial();
+  try {
+    await agregarRegistro('Flujo de Caja', registro);
+    alert('Movimiento registrado con éxito');
+    flujoCajaForm.reset();
+    cargarHistorial();
+  } catch (error) {
+    console.error('Error al registrar movimiento:', error);
+    alert('Error al registrar movimiento.');
+  }
 });
 
+// Inicialización
 cargarPedidos();
 cargarHistorial();
