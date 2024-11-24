@@ -24,7 +24,7 @@ export async function agregarRegistro(tabla, datos) {
   const url = `${airtableUrl}/${tabla}`;
   return airtableFetch(url, {
     method: 'POST',
-    body: JSON.stringify({ fields: datos }),
+    body: JSON.stringify(datos), // Quitamos el envoltorio adicional
   });
 }
 
@@ -40,12 +40,6 @@ export async function actualizarRegistro(tabla, id, datos) {
   const url = `${airtableUrl}/${tabla}/${id}`;
   return airtableFetch(url, {
     method: 'PATCH',
-    body: JSON.stringify({ fields: datos }),
+    body: JSON.stringify(datos),
   });
-}
-
-// Función para eliminar un registro
-export async function eliminarRegistro(tabla, id) {
-  const url = `${airtableUrl}/${tabla}/${id}`;
-  return airtableFetch(url, { method: 'DELETE' });
 }
