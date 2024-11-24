@@ -1,55 +1,51 @@
-// Configuración para interactuar con Airtable
-const airtableConfig = {
-  baseUrl: 'https://api.airtable.com/v0/appR2YxcBf4yz2g9t', // Reemplaza con el ID de tu base
-  apiKey: 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc', // Reemplaza con tu API Key de Airtable
-};
+const airtableUrl = 'https://api.airtable.com/v0/appR2YxcBf4yz2g9t';
+const airtableApiKey = 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc';
 
-// Función genérica para realizar solicitudes a Airtable
-async function airtableFetch(endpoint, options = {}) {
-  const url = `${airtableConfig.baseUrl}/${endpoint}`;
-  const config = {
-    ...options,
+// Función genérica para interactuar con Airtable
+async function airtableFetch(url, options = {}) {
+  const response = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${airtableConfig.apiKey}`,
+      Authorization: `Bearer ${airtableApiKey}`,
       'Content-Type': 'application/json',
-      ...options.headers,
     },
-  };
+    ...options,
+  });
 
-  const response = await fetch(url, config);
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Error en Airtable: ${JSON.stringify(errorData)}`);
+    const error = await response.text();
+    throw new Error(`Error en Airtable: ${error}`);
   }
+
   return response.json();
 }
 
-// Función para obtener registros de una tabla
-async function obtenerRegistros(tabla) {
-  try {
-    const data = await airtableFetch(`${tabla}?view=Grid%20view`);
-    return data.records;
-  } catch (error) {
-    console.error('Error al obtener registros:', error);
-    throw error;
-  }
-}
-
 // Función para agregar un registro
-async function agregarRegistro(tabla, registro) {
-  try {
-    const data = {
-      records: [registro],
-    };
-    const resultado = await airtableFetch(tabla, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    return resultado;
-  } catch (error) {
-    console.error('Error al agregar registro:', error);
-    throw error;
-  }
+export async function agregarRegistro(tabla, datos) {
+  const url = `${airtableUrl}/${tabla}`;
+  return airtableFetch(url, {
+    method: 'POST',
+    body: JSON.stringify(datos), // datos debe contener el formato adecuado
+  });
 }
 
-export { obtenerRegistros, agregarRegistro };
+// Función para obtener registros
+export async function obtenerRegistros(tabla) {
+  const url = `${airtableUrl}/${tabla}`;
+  const data = await airtableFetch(url);
+  return data.records;
+}
+
+// Función para actualizar un registro
+export async function actualizarRegistro(tabla, id, datos) {
+  const url = `${airtableUrl}/${tabla}/${id}`;
+  return airtableFetch(url, {
+    method: 'PATCH',
+    body: JSON.stringify(datos),
+  });
+}
+
+// Función para eliminar un registro
+export async function eliminarRegistro(tabla, id) {
+  const url = `${airtableUrl}/${tabla}/${id}`;
+  return airtableFetch(url, { method: 'DELETE' });
+}
