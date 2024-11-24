@@ -4,7 +4,8 @@ const flujoCajaForm = document.getElementById('flujo-caja-form');
 const tipoSelect = document.getElementById('tipo');
 const medioPagoDiv = document.getElementById('medio-pago-div');
 const detalleSalidaDiv = document.getElementById('detalle-salida-div');
-const pedidoRelacionadoSelect = document.getElementById('pedido-relacionado');
+const pedidoRelacionadoInput = document.getElementById('pedido-relacionado');
+const pedidoLista = document.getElementById('pedido-lista');
 const tablaFlujoCaja = document.getElementById('tabla-flujo-caja');
 const saldoEfectivo = document.getElementById('saldo-efectivo');
 const saldoBanco = document.getElementById('saldo-banco');
@@ -30,51 +31,44 @@ tipoSelect.addEventListener('change', () => {
   if (tipo === 'entrada') {
     medioPagoDiv.style.display = 'block';
     detalleSalidaDiv.style.display = 'none';
-    pedidoRelacionadoSelect.parentElement.style.display = 'block';
+    pedidoRelacionadoInput.parentElement.style.display = 'block';
   } else if (tipo === 'salida') {
     medioPagoDiv.style.display = 'block';
     detalleSalidaDiv.style.display = 'block';
-    pedidoRelacionadoSelect.parentElement.style.display = 'none';
+    pedidoRelacionadoInput.parentElement.style.display = 'none';
   } else {
     medioPagoDiv.style.display = 'none';
     detalleSalidaDiv.style.display = 'none';
-    pedidoRelacionadoSelect.parentElement.style.display = 'none';
+    pedidoRelacionadoInput.parentElement.style.display = 'none';
   }
 });
 
-// Cargar pedidos en el dropdown
+// Cargar pedidos en el input de búsqueda
 async function cargarPedidos() {
   const pedidos = await obtenerRegistros('Estado de Pedido');
-  pedidoRelacionadoSelect.innerHTML = '<option value="">Sin Pedido</option>';
-  pedidos.forEach(pedido => {
-    const cliente = pedido.fields.Cliente || 'Cliente desconocido';
-    const producto = pedido.fields.Producto || 'Producto desconocido';
-    const estado = pedido.fields.Estado || 'Desconocido';
-    const id = pedido.id;
+  const pedidosFiltrados = pedidos.filter(pedido => pedido.fields.Estado === 'Pendiente' || pedido.fields.Estado === 'Completado');
 
-    if (estado === 'Pendiente' || estado === 'Completado') {
-      const option = document.createElement('option');
-      option.value = id;
-      option.textContent = `${cliente} - ${producto} (${estado})`;
-      pedidoRelacionadoSelect.appendChild(option);
-    }
+  // Autocompletar con los pedidos disponibles
+  pedidoRelacionadoInput.addEventListener('input', () => {
+    const query = pedidoRelacionadoInput.value.toLowerCase();
+    pedidoLista.innerHTML = '';
+    
+    const resultados = pedidosFiltrados.filter(pedido =>
+      `${pedido.fields.Cliente} - ${pedido.fields.Producto} (${pedido.fields.Estado})`.toLowerCase().includes(query)
+    );
+
+    resultados.forEach(pedido => {
+      const li = document.createElement('li');
+      li.textContent = `${pedido.fields.Cliente} - ${pedido.fields.Producto} (${pedido.fields.Estado})`;
+      li.dataset.id = pedido.id;
+      li.addEventListener('click', () => {
+        pedidoRelacionadoInput.value = li.textContent;
+        pedidoRelacionadoInput.dataset.id = li.dataset.id;
+        pedidoLista.innerHTML = ''; // Limpiar lista después de seleccionar
+      });
+      pedidoLista.appendChild(li);
+    });
   });
-
-  // Verificar si se redirigió con datos
-  const tipoMovimiento = localStorage.getItem('tipoMovimiento');
-  const pedidoRelacionadoId = localStorage.getItem('pedidoRelacionado');
-
-  if (tipoMovimiento && pedidoRelacionadoId) {
-    tipoSelect.value = tipoMovimiento;
-    pedidoRelacionadoSelect.value = pedidoRelacionadoId;
-    medioPagoDiv.style.display = 'block';
-    detalleSalidaDiv.style.display = 'none';
-    pedidoRelacionadoSelect.parentElement.style.display = 'block';
-
-    // Limpiar `localStorage` para evitar conflictos futuros
-    localStorage.removeItem('tipoMovimiento');
-    localStorage.removeItem('pedidoRelacionado');
-  }
 }
 
 // Actualizar resumen de saldos
@@ -124,17 +118,7 @@ async function cargarHistorial() {
   actualizarResumen(movimientos);
 }
 
-// Mostrar mensaje de éxito
-function mostrarMensajeExito() {
-  mensajeExito.textContent = 'Movimiento registrado con éxito';
-  mensajeExito.style.display = 'block';
-
-  setTimeout(() => {
-    mensajeExito.style.display = 'none';
-  }, 3000);
-}
-
-// Manejar el envío del formulario
+// Enviar formulario de flujo de caja
 flujoCajaForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -143,41 +127,36 @@ flujoCajaForm.addEventListener('submit', async (e) => {
   const tipo = tipoSelect.value;
   const medioPago = document.getElementById('medio-pago').value;
   const detalleSalida = document.getElementById('detalle-salida').value;
-  const pedidoRelacionado = pedidoRelacionadoSelect.value;
-  const fecha = new Date().toISOString().split('T')[0]; // Fecha en formato YYYY-MM-DD
+  const pedidoRelacionadoId = pedidoRelacionadoInput.dataset.id;
 
-  const nuevoRegistro = {
-    Concepto: concepto,
-    Monto: monto,
-    Tipo: tipo,
-    Fecha: fecha,
+  if (monto <= 0) {
+    alert('Por favor ingrese un monto válido.');
+    return;
+  }
+
+  const registro = {
+    fields: {
+      Concepto: concepto,
+      Monto: monto,
+      Tipo: tipo,
+      'Medio de Pago': medioPago,
+      'Detalle Salida': tipo === 'salida' ? detalleSalida : undefined,
+      'Pedido Relacionado': pedidoRelacionadoId ? pedidoRelacionadoId : undefined,
+      Fecha: new Date().toISOString(),
+    }
   };
 
-  if (tipo === 'entrada') {
-    nuevoRegistro['Medio de Pago'] = medioPago;
-    nuevoRegistro['Pedido Relacionado'] = pedidoRelacionado || 'Sin Pedido';
-  } else if (tipo === 'salida') {
-    nuevoRegistro['Medio de Pago'] = medioPago;
-    nuevoRegistro['Detalle de Salida'] = detalleSalida;
-  }
+  await agregarRegistro('Flujo de Caja', registro);
+  mensajeExito.textContent = 'Movimiento registrado con éxito';
+  mensajeExito.style.display = 'block';
 
-  try {
-    await agregarRegistro('Flujo de Caja', nuevoRegistro);
+  setTimeout(() => {
+    mensajeExito.style.display = 'none';
+  }, 3000);
 
-    if (tipo === 'entrada' && pedidoRelacionado) {
-      await actualizarRegistro('Estado de Pedido', pedidoRelacionado, { Estado: 'Pagado' });
-    }
-
-    cargarHistorial();
-    flujoCajaForm.reset();
-    medioPagoDiv.style.display = 'none';
-    detalleSalidaDiv.style.display = 'none';
-    mostrarMensajeExito();
-  } catch (error) {
-    console.error('Error al agregar registro: ', error);
-  }
+  flujoCajaForm.reset();
+  cargarHistorial();
 });
 
-// Inicialización
 cargarPedidos();
 cargarHistorial();
