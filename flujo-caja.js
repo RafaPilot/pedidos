@@ -1,4 +1,4 @@
-import { obtenerRegistros, agregarRegistro, actualizarRegistro } from './airtable-config.js';
+import { obtenerRegistros, agregarRegistro } from './airtable-config.js';
 
 const flujoCajaForm = document.getElementById('flujo-caja-form');
 const tipoSelect = document.getElementById('tipo');
@@ -134,7 +134,6 @@ flujoCajaForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  const fechaActual = new Date().toISOString().split('T')[0]; // Formato "YYYY-MM-DD"
   const registro = {
     fields: {
       Concepto: concepto,
@@ -143,7 +142,7 @@ flujoCajaForm.addEventListener('submit', async (e) => {
       'Medio de Pago': medioPago,
       'Detalle Salida': tipo === 'salida' ? detalleSalida : undefined,
       'Pedido Relacionado': pedidoRelacionadoId ? pedidoRelacionadoId : undefined,
-      Fecha: fechaActual, // Fecha formateada correctamente
+      Fecha: new Date().toISOString(),
     }
   };
 
