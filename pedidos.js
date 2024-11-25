@@ -3,6 +3,7 @@ import { agregarRegistro, obtenerRegistros } from './airtable-config.js';
 const form = document.getElementById('pedido-form');
 const tablaPedidos = document.getElementById('tabla-pedidos');
 const clientesList = document.getElementById('clientes-list');
+const mensajeExito = document.getElementById('mensaje-exito'); // Asegúrate de tener este elemento en tu HTML
 
 // Cargar clientes en el datalist
 async function cargarClientes() {
@@ -23,9 +24,9 @@ async function cargarClientes() {
 async function cargarPedidos() {
   try {
     const pedidos = await obtenerRegistros('Pedidos');
-    const ultimosPedidos = pedidos.slice(-4).reverse(); // Obtener los últimos 4 registros
+    const pedidosOrdenados = pedidos.reverse(); // Invertir el orden para mostrar los más recientes primero
     tablaPedidos.innerHTML = '';
-    ultimosPedidos.forEach(pedido => {
+    pedidosOrdenados.forEach(pedido => {
       const { Cliente, Producto, Cantidad, Fecha, Monto } = pedido.fields;
       const row = `
         <tr>
@@ -57,11 +58,7 @@ async function cargarPedidos() {
 
         if (id && cliente && producto && monto) {
           // Guardar datos en localStorage para flujo de caja
-          localStorage.setItem('tipoMovimiento', 'entrada');
-          localStorage.setItem(
-            'pedidoParaPago',
-            JSON.stringify({ id, cliente, producto, monto })
-          );
+          localStorage.setItem('pedidoParaPago', JSON.stringify({ id, cliente, producto, monto }));
           // Redirigir a la pantalla de flujo de caja
           window.location.href = './flujo-caja.html';
         } else {
@@ -90,11 +87,13 @@ form.addEventListener('submit', async (e) => {
   }
 
   const nuevoPedido = {
-    Cliente: cliente,
-    Producto: producto,
-    Cantidad: cantidad,
-    Fecha: fecha,
-    Monto: monto,
+    fields: {
+      Cliente: cliente,
+      Producto: producto,
+      Cantidad: cantidad,
+      Fecha: fecha,
+      Monto: monto,
+    },
   };
 
   try {
@@ -103,22 +102,36 @@ form.addEventListener('submit', async (e) => {
 
     // Sincronizar con la tabla "Estado de Pedido"
     const estadoInicial = {
-      PedidoID: pedidoCreado.id,
-      Cliente: cliente,
-      Producto: producto,
-      Cantidad: cantidad,
-      Fecha: fecha,
-      Monto: monto,
-      Estado: 'Pendiente',
+      fields: {
+        PedidoID: pedidoCreado.id,
+        Cliente: cliente,
+        Producto: producto,
+        Cantidad: cantidad,
+        Fecha: fecha,
+        Monto: monto,
+        Estado: 'Pendiente',
+      },
     };
     await agregarRegistro('Estado de Pedido', estadoInicial);
 
     form.reset();
     cargarPedidos();
+
+    // Mostrar mensaje de éxito
+    mostrarMensajeExito('Pedido registrado con éxito');
   } catch (error) {
     console.error('Error registrando pedido:', error);
   }
 });
+
+// Mostrar mensaje de éxito
+function mostrarMensajeExito(mensaje) {
+  mensajeExito.textContent = mensaje;
+  mensajeExito.style.display = 'block';
+  setTimeout(() => {
+    mensajeExito.style.display = 'none';
+  }, 3000); // El mensaje desaparece después de 3 segundos
+}
 
 // Inicializar
 cargarClientes();
