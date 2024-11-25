@@ -457,3 +457,18 @@ footer {
 footer p {
   margin: 0;
 }
+/* Animación de desvanecimiento */
+body {
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+}
+
+/* Keyframes para el efecto fadeIn */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
