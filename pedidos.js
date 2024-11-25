@@ -20,13 +20,15 @@ async function cargarClientes() {
   }
 }
 
-// Cargar pedidos en la tabla
+// Cargar pedidos en la tabla (solo los últimos 4)
 async function cargarPedidos() {
   try {
     const pedidos = await obtenerRegistros('Pedidos');
     const pedidosOrdenados = pedidos.reverse(); // Invertir el orden para mostrar los más recientes primero
-    tablaPedidos.innerHTML = '';
-    pedidosOrdenados.forEach(pedido => {
+    const ultimosPedidos = pedidosOrdenados.slice(0, 4); // Tomar solo los últimos 4 registros
+
+    tablaPedidos.innerHTML = ''; // Limpiar tabla antes de llenarla
+    ultimosPedidos.forEach(pedido => {
       const { Cliente, Producto, Cantidad, Fecha, Monto } = pedido.fields;
       const row = `
         <tr>
