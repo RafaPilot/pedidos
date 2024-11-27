@@ -40,8 +40,8 @@ async function cargarCuentasPorCobrar() {
       tablaCuentas.appendChild(tr);
     });
 
-    // Mostrar el total en el pie de la tabla
-    totalMontoElement.textContent = totalMonto.toFixed(2);
+    // Mostrar el total en el pie de la tabla con negritas
+    totalMontoElement.innerHTML = `<strong>${totalMonto.toFixed(2)}</strong>`; // Resaltar el monto total en negritas
   } catch (error) {
     console.error('Error al cargar cuentas:', error);
   }
