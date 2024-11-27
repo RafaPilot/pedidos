@@ -6,8 +6,8 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="../style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d@0.1.0"></script> <!-- 3D chart plugin -->
 </head>
 <body>
   <header>
@@ -30,6 +30,17 @@
       </div>
       <div>
         <canvas id="productosVendidosChart"></canvas>
+      </div>
+    </section>
+
+    <section class="dashboard-details">
+      <div class="card">
+        <h3>Top 5 Clientes</h3>
+        <ul id="top-clientes"></ul>
+      </div>
+      <div class="card">
+        <h3>Producto Más Vendido (Este Mes)</h3>
+        <p id="producto-mas-vendido"></p>
       </div>
     </section>
 
