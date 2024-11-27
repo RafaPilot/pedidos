@@ -35,6 +35,7 @@ async function cargarDashboard() {
     }
   });
 
+  // Tendencia de pedidos por fecha
   const pedidosPorFecha = pedidos.reduce((acc, p) => {
     const fecha = p.fields.Fecha || 'Sin Fecha';
     acc[fecha] = (acc[fecha] || 0) + 1;
@@ -59,6 +60,7 @@ async function cargarDashboard() {
     }
   });
 
+  // Productos vendidos
   const productosVendidos = pedidos.reduce((acc, p) => {
     const producto = p.fields.Producto || 'Sin Producto';
     acc[producto] = (acc[producto] || 0) + (p.fields.Cantidad || 0);
@@ -85,6 +87,42 @@ async function cargarDashboard() {
       }
     }
   });
+
+  // Top 5 Clientes
+  const clientes = pedidos.reduce((acc, p) => {
+    const cliente = p.fields.Cliente || 'Desconocido';
+    acc[cliente] = (acc[cliente] || 0) + (p.fields.Monto || 0);
+    return acc;
+  }, {});
+  const topClientes = Object.entries(clientes)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const topClientesList = document.getElementById('top-clientes');
+  topClientes.forEach(([cliente, monto]) => {
+    const li = document.createElement('li');
+    li.textContent = `${cliente}: $${monto.toFixed(2)}`;
+    topClientesList.appendChild(li);
+  });
+
+  // Producto más vendido este mes
+  const fechaActual = new Date();
+  const mesActual = fechaActual.getMonth() + 1;
+  const productosEsteMes = pedidos.filter(p => {
+    const fechaPedido = new Date(p.fields.Fecha);
+    return fechaPedido.getMonth() + 1 === mesActual;
+  });
+
+  const productoMasVendido = productosEsteMes.reduce((acc, p) => {
+    const producto = p.fields.Producto || 'Sin Producto';
+    acc[producto] = (acc[producto] || 0) + (p.fields.Cantidad || 0);
+    return acc;
+  }, {});
+
+  const productoMasVendidoNombre = Object.entries(productoMasVendido)
+    .sort((a, b) => b[1] - a[1])[0][0];
+
+  document.getElementById('producto-mas-vendido').textContent = productoMasVendidoNombre;
 }
 
 // Inicializar el dashboard
