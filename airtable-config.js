@@ -1,51 +1,42 @@
-const airtableUrl = 'https://api.airtable.com/v0/appR2YxcBf4yz2g9t';
-const airtableApiKey = 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc';
+const BASE_ID = 'appR2YxcBf4yz2g9t'; // Cambia por el ID de tu base
+const API_KEY = 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc'; // Asegúrate de tener configurada tu API key correctamente
 
-// Función genérica para interactuar con Airtable
-async function airtableFetch(url, options = {}) {
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${airtableApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    ...options,
-  });
+async function airtableFetch(url, method = 'GET', body = null) {
+  const headers = {
+    Authorization: `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json',
+  };
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Error en Airtable: ${error}`);
+  const options = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
   }
 
-  return response.json();
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Error en Airtable: ${JSON.stringify(errorData)}`);
+  }
+
+  return await response.json();
 }
 
-// Función para agregar un registro
-export async function agregarRegistro(tabla, datos) {
-  const url = `${airtableUrl}/${tabla}`;
-  return airtableFetch(url, {
-    method: 'POST',
-    body: JSON.stringify(datos), // datos debe contener el formato adecuado
-  });
-}
-
-// Función para obtener registros
 export async function obtenerRegistros(tabla) {
-  const url = `${airtableUrl}/${tabla}`;
-  const data = await airtableFetch(url);
-  return data.records;
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(tabla)}`;
+  return (await airtableFetch(url)).records;
 }
 
-// Función para actualizar un registro
-export async function actualizarRegistro(tabla, id, datos) {
-  const url = `${airtableUrl}/${tabla}/${id}`;
-  return airtableFetch(url, {
-    method: 'PATCH',
-    body: JSON.stringify(datos),
-  });
+export async function agregarRegistro(tabla, registro) {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(tabla)}`;
+  return await airtableFetch(url, 'POST', registro);
 }
 
-// Función para eliminar un registro
-export async function eliminarRegistro(tabla, id) {
-  const url = `${airtableUrl}/${tabla}/${id}`;
-  return airtableFetch(url, { method: 'DELETE' });
+export async function actualizarRegistro(tabla, id, campos) {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(tabla)}/${id}`;
+  const body = { fields: campos }; // Importante: los campos deben ir dentro de 'fields'
+  return await airtableFetch(url, 'PATCH', body);
 }
