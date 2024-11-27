@@ -44,10 +44,10 @@ async function cargarPedidos() {
   });
 }
 
-// Cargar movimientos recientes en la tabla
+// Cargar movimientos recientes en la tabla (limitar a los últimos 5)
 async function cargarHistorial() {
   const movimientos = await obtenerRegistros('Flujo de Caja');
-  const ultimosMovimientos = movimientos.reverse(); // Las últimas transacciones primero
+  const ultimosMovimientos = movimientos.reverse().slice(0, 5); // Las últimas 5 transacciones
 
   tablaFlujoCaja.innerHTML = '';
   ultimosMovimientos.forEach(mov => {
