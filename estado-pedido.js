@@ -24,7 +24,7 @@ async function cargarPedidos(filtro = 'Todos') {
             <td>
               ${
                 Estado === 'Pendiente'
-                  ? `<button onclick="actualizarEstadoPedido('${pedido.id}', 'Completado')">Marcar como Completado</button>`
+                  ? `<button class="btn-completar" onclick="actualizarEstadoPedido('${pedido.id}', 'Completado')">Marcar como Completado</button>`
                   : ''
               }
             </td>
@@ -54,4 +54,3 @@ filtroEstado.addEventListener('change', () => {
 
 // Inicializar
 cargarPedidos();
-  
