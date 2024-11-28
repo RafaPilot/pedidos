@@ -7,41 +7,54 @@
   <link rel="stylesheet" href="../style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d@0.1.0"></script> <!-- 3D chart plugin -->
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d@0.1.0"></script>
 </head>
 <body>
   <header>
     <h1>Dashboard</h1>
   </header>
   <main>
-    <section class="dashboard-summary">
-      <div class="summary-card" id="total-pedidos">Total Pedidos: </div>
-      <div class="summary-card" id="pedidos-completados">Pedidos Completados: </div>
-      <div class="summary-card" id="pedidos-pendientes">Pedidos Pendientes: </div>
-      <div class="summary-card" id="total-ingresos">Total Ingresos: $</div>
+    <!-- Filtros -->
+    <section class="filters">
+      <label for="filtro-mes">Filtrar por Mes:</label>
+      <input type="month" id="filtro-mes" />
+
+      <button id="aplicar-filtros">Aplicar Filtros</button>
+      <button id="resetear-filtros">Resetear Filtros</button>
     </section>
 
+    <!-- Sección de Resumen -->
+    <section class="dashboard-summary">
+      <div class="summary-card" id="ingresos-totales">Ingresos Totales: $0.00</div>
+      <div class="summary-card" id="numero-pedidos">Número de Pedidos: 0</div>
+      <div class="summary-card" id="ticket-promedio">Ticket Promedio: $0.00</div>
+      <div class="summary-card" id="producto-mas-vendido">Producto Más Vendido: N/A</div>
+      <div class="summary-card" id="margen-ganancia">Margen de Ganancia: $0.00</div>
+      <div class="summary-card" id="tasa-recompra">Tasa de Recompra: 0%</div>
+    </section>
+
+    <!-- Gráficos -->
     <section class="dashboard-charts">
+      <div>
+        <canvas id="ingresosPorProductoChart"></canvas>
+      </div>
+      <div>
+        <canvas id="tendenciaIngresosChart"></canvas>
+      </div>
       <div>
         <canvas id="estadoPedidosChart"></canvas>
       </div>
-      <div>
-        <canvas id="tendenciaPedidosChart"></canvas>
-      </div>
-      <div>
-        <canvas id="productosVendidosChart"></canvas>
-      </div>
     </section>
 
+    <!-- Detalles -->
     <section class="dashboard-details">
       <div class="card">
         <h3>Top 5 Clientes</h3>
         <ul id="top-clientes"></ul>
       </div>
       <div class="card">
-        <h3>Producto Más Vendido (Este Mes)</h3>
-        <p id="producto-mas-vendido"></p>
+        <h3>Pedidos con Mayor Monto</h3>
+        <ul id="top-pedidos"></ul>
       </div>
     </section>
 
