@@ -633,4 +633,46 @@ canvas {
     width: 80%;
   }
 }
+/* Estilo para el contenedor del buscador */
+#buscador-cliente {
+  display: block;
+  margin: 20px auto;
+  width: 80%;
+  max-width: 400px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #861e91; /* Color principal */
+  border-radius: 25px;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Cambio de estilo cuando el buscador está en foco */
+#buscador-cliente:focus {
+  border-color: #ed1d99; /* Color secundario */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+/* Animación al escribir en el buscador */
+#buscador-cliente::placeholder {
+  color: #aaa;
+  font-style: italic;
+  transition: color 0.2s ease-in-out;
+}
+
+#buscador-cliente:focus::placeholder {
+  color: transparent;
+}
+
+/* Estilo para el label del buscador */
+label[for="buscador-cliente"] {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #861e91;
+}
 
