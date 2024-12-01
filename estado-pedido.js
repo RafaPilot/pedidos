@@ -2,15 +2,24 @@ import { obtenerRegistros, actualizarRegistro } from './airtable-config.js';
 
 const tablaEstadoPedidos = document.getElementById('tabla-estado-pedidos');
 const filtroEstado = document.getElementById('filtro-estado');
+const buscadorCliente = document.getElementById('buscador-cliente');
 
 // Cargar pedidos y aplicar filtro
-async function cargarPedidos(filtro = 'Todos') {
+async function cargarPedidos(filtro = 'Todos', clienteFiltro = '') {
   try {
     const pedidos = await obtenerRegistros('Estado de Pedido');
     tablaEstadoPedidos.innerHTML = '';
 
     pedidos
-      .filter(pedido => filtro === 'Todos' || pedido.fields.Estado === filtro)
+      .filter(pedido => {
+        const estado = pedido.fields.Estado;
+        const cliente = pedido.fields.Cliente || '';
+        const cumpleEstado = filtro === 'Todos' || estado === filtro;
+        const cumpleCliente =
+          clienteFiltro === '' || cliente.toLowerCase().includes(clienteFiltro.toLowerCase());
+        const excluirPagados = estado !== 'Pagado'; // Excluir "Pagados"
+        return cumpleEstado && cumpleCliente && excluirPagados;
+      })
       .forEach(pedido => {
         const { PedidoID, Cliente, Producto, Cantidad, Fecha, Estado } = pedido.fields;
         const row = `
@@ -41,7 +50,7 @@ async function cargarPedidos(filtro = 'Todos') {
 window.actualizarEstadoPedido = async (id, nuevoEstado) => {
   try {
     await actualizarRegistro('Estado de Pedido', id, { Estado: nuevoEstado });
-    cargarPedidos(filtroEstado.value);
+    cargarPedidos(filtroEstado.value, buscadorCliente.value);
   } catch (error) {
     console.error('Error actualizando estado de pedido:', error);
   }
@@ -49,7 +58,12 @@ window.actualizarEstadoPedido = async (id, nuevoEstado) => {
 
 // Filtrar al cambiar el selector
 filtroEstado.addEventListener('change', () => {
-  cargarPedidos(filtroEstado.value);
+  cargarPedidos(filtroEstado.value, buscadorCliente.value);
+});
+
+// Filtrar al escribir en el buscador
+buscadorCliente.addEventListener('input', () => {
+  cargarPedidos(filtroEstado.value, buscadorCliente.value);
 });
 
 // Inicializar
