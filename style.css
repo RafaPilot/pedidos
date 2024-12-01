@@ -712,3 +712,28 @@ label[for="buscador-cliente"] {
   color: #861e91;
   background-color: #fff;
 }
+/* Estilos para el buscador en Clientes */
+#buscador-clientes {
+  width: 100%;
+  max-width: 400px; /* Ajusta el ancho máximo */
+  padding: 10px;
+  margin: 15px 0; /* Separación con los elementos de alrededor */
+  border: 2px solid #861e91; /* Color del borde */
+  border-radius: 8px; /* Bordes redondeados */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #333; /* Color del texto */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombras suaves */
+}
+
+#buscador-clientes::placeholder {
+  color: #aaa; /* Color del texto del placeholder */
+  font-style: italic;
+}
+
+/* Efectos al enfocar */
+#buscador-clientes:focus {
+  outline: none;
+  border-color: #ed1d99; /* Color del borde al enfocar */
+  box-shadow: 0 0 8px rgba(237, 29, 153, 0.4); /* Resplandor al enfocar */
+}
