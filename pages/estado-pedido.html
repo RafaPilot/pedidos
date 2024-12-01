@@ -16,6 +16,10 @@
     <section>
       <h2>Pedidos y Estado</h2>
 
+      <!-- Buscador para filtrar por cliente -->
+      <label for="buscador-cliente">Buscar por cliente:</label>
+      <input type="text" id="buscador-cliente" placeholder="Escribe el nombre del cliente">
+
       <!-- Selector para filtrar pedidos por estado -->
       <label for="filtro-estado">Filtrar por estado:</label>
       <select id="filtro-estado">
@@ -27,12 +31,13 @@
       <table class="estado-pedidos-tabla">
         <thead>
           <tr>
-            <th>-</th>
+            <th>Pedido ID</th>
             <th>Cliente</th>
             <th>Producto</th>
             <th>Cantidad</th>
-            
-            
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="tabla-estado-pedidos"></tbody>
