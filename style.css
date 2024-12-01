@@ -642,7 +642,7 @@ canvas {
   padding: 10px 15px;
   font-size: 16px;
   border: 2px solid #861e91; /* Color principal */
-  border-radius: 25px;
+  border-radius: 10px;
   outline: none;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -675,4 +675,40 @@ label[for="buscador-cliente"] {
   margin-bottom: 10px;
   color: #861e91;
 }
+/* Estilo para el filtro de selección */
+#filtro-estado {
+  width: 200px;
+  padding: 10px 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #861e91; /* Color principal */
+  background-color: #f7f7f7; /* Fondo claro */
+  border: 2px solid #ed1d99; /* Borde en color secundario */
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease; /* Animación */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
 
+/* Efecto al pasar el mouse por encima */
+#filtro-estado:hover {
+  background-color: #ed1d99; /* Cambiar fondo al color secundario */
+  color: #fff; /* Cambiar texto a blanco */
+  border-color: #861e91; /* Cambiar borde al color principal */
+}
+
+/* Efecto al hacer clic (foco) */
+#filtro-estado:focus {
+  background-color: #fff; /* Fondo blanco */
+  border-color: #861e91; /* Borde más visible */
+  box-shadow: 0 0 10px rgba(134, 30, 145, 0.5); /* Sombra destacada */
+}
+
+/* Estilo para las opciones del select */
+#filtro-estado option {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #861e91;
+  background-color: #fff;
+}
