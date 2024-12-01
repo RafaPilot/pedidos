@@ -6,7 +6,6 @@
   <title>Clientes</title>
   <link rel="stylesheet" href="../style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
 </head>
 <body>
   <header>
@@ -23,7 +22,13 @@
         <input type="text" id="telefono" placeholder="Número de teléfono" required>
         <button type="submit">Registrar Cliente</button>
       </form>
+
       <h2>Clientes Registrados</h2>
+      
+      <!-- Buscador -->
+      <label for="buscador-clientes">Buscar Cliente:</label>
+      <input type="text" id="buscador-clientes" placeholder="Escribe un nombre...">
+      
       <table>
         <thead>
           <tr>
@@ -39,12 +44,14 @@
     </section>
   </main>
   <script>
-    // Referencia a la base de datos de clientes
     const airtableUrl = 'https://api.airtable.com/v0/appR2YxcBf4yz2g9t/Clientes';
     const airtableApiKey = 'patro3YuvesSmzYN5.a79b01e01bae89bf4b2985d1a9422c4e2664544053106cccfcddc701f3767bbc';
 
     const form = document.getElementById('clientes-form');
     const tablaClientes = document.getElementById('tabla-clientes');
+    const buscadorClientes = document.getElementById('buscador-clientes');
+
+    let clientesCache = []; // Cache para almacenar los datos de los clientes
 
     // Cargar clientes al iniciar
     async function cargarClientes() {
@@ -52,14 +59,20 @@
         headers: { Authorization: `Bearer ${airtableApiKey}` },
       });
       const data = await response.json();
+      clientesCache = data.records; // Guardar los clientes en la cache
+      mostrarClientes(clientesCache); // Mostrar los clientes
+    }
+
+    // Mostrar clientes en la tabla
+    function mostrarClientes(clientes) {
       tablaClientes.innerHTML = '';
-      data.records.forEach(record => {
+      clientes.forEach(record => {
         const { Nombre, Email, Telefono } = record.fields;
         const row = `
           <tr>
-            <td>${Nombre}</td>
-            <td>${Email}</td>
-            <td>${Telefono}</td>
+            <td>${Nombre || ''}</td>
+            <td>${Email || ''}</td>
+            <td>${Telefono || ''}</td>
             <td><button onclick="eliminarCliente('${record.id}')">Eliminar</button></td>
           </tr>
         `;
@@ -103,6 +116,15 @@
       });
       cargarClientes();
     }
+
+    // Filtrar clientes con el buscador
+    buscadorClientes.addEventListener('input', (e) => {
+      const texto = e.target.value.toLowerCase();
+      const clientesFiltrados = clientesCache.filter(record => 
+        record.fields.Nombre.toLowerCase().includes(texto)
+      );
+      mostrarClientes(clientesFiltrados);
+    });
 
     // Inicializar
     cargarClientes();
