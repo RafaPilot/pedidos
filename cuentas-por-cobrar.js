@@ -12,7 +12,7 @@ async function cargarCuentasPorCobrar() {
     const registros = await obtenerRegistros('Estado de Pedido');
     cuentasPorCobrar = registros.filter((registro) => {
       const estado = registro.fields.Estado;
-      return estado === 'Pendiente' || estado === 'Completado';
+      return estado === 'Pendiente' || estado === 'Completado' || estado === 'Abono';
     });
 
     mostrarCuentas(cuentasPorCobrar); // Muestra todas las cuentas al cargar
@@ -24,27 +24,20 @@ async function cargarCuentasPorCobrar() {
 // Función para mostrar las cuentas en la tabla
 function mostrarCuentas(cuentas) {
   tablaCuentas.innerHTML = ''; // Limpia la tabla antes de cargar los datos
-  let totalMonto = 0; // Variable para sumar los montos
+  let totalMonto = 0; // Variable para sumar los montos restantes
 
   // Mostrar los registros en la tabla
   cuentas.forEach((registro) => {
-    const { Cliente, Monto, Fecha, Estado } = registro.fields;
+    const { Cliente, Monto, Fecha, Estado, 'Monto Restante': montoRestante } = registro.fields;
     const montoValue = parseFloat(Monto) || 0; // Convertir el monto a número o usar 0 si está vacío
-    totalMonto += montoValue; // Sumar el monto actual al total
+    const montoRestanteValue = parseFloat(montoRestante) || montoValue; // Monto restante o el monto total si no está definido
+    totalMonto += montoRestanteValue; // Sumar el monto restante al total
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${Cliente || ''}</td>
-      <td>${montoValue.toFixed(2)}</td>
+      <td>${montoRestanteValue.toFixed(2)}</td> <!-- Mostrar el monto restante bajo la columna 'Debe' -->
       <td>${Fecha || ''}</td>
-      <td>${Estado || ''}</td>
-      <td>
-        ${
-          Estado === 'Pendiente'
-            ? `<button onclick="marcarCompletado('${registro.id}')">Marcar como Pagado</button>`
-            : ''
-        }
-      </td>
     `;
     tablaCuentas.appendChild(tr);
   });
