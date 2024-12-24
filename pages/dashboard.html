@@ -9,53 +9,61 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d@0.1.0"></script>
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
 <body>
   <header>
     <h1>Dashboard</h1>
   </header>
   <main>
-    <!-- Filtros -->
     <section class="filters">
       <label for="filtro-mes">Filtrar por Mes:</label>
       <input type="month" id="filtro-mes" />
-
       <button id="aplicar-filtros">Aplicar Filtros</button>
       <button id="resetear-filtros">Resetear Filtros</button>
     </section>
 
-    <!-- Sección de Resumen -->
     <section class="dashboard-summary">
-      <div class="summary-card" id="ingresos-totales">Ingresos Totales: $0.00</div>
-      <div class="summary-card" id="numero-pedidos">Número de Pedidos: 0</div>
-      <div class="summary-card" id="ticket-promedio">Ticket Promedio: $0.00</div>
-      <div class="summary-card" id="producto-mas-vendido">Producto Más Vendido: N/A</div>
-      <div class="summary-card" id="margen-ganancia">Margen de Ganancia: $0.00</div>
-      <div class="summary-card" id="tasa-recompra">Tasa de Recompra: 0%</div>
+      <div id="ingresos-totales" class="summary-card ingresos">
+        <i class="fas fa-wallet"></i>
+        <h3>Ingresos Totales</h3>
+        <p>$0.00</p>
+      </div>
+      <div id="gastos-totales" class="summary-card gastos">
+        <i class="fas fa-money-bill-wave"></i>
+        <h3>Gastos Totales</h3>
+        <p>$0.00</p>
+      </div>
+      <div id="balance-neto" class="summary-card balance">
+        <i class="fas fa-balance-scale"></i>
+        <h3>Balance Neto</h3>
+        <p>$0.00</p>
+      </div>
+      <div id="rentabilidad" class="summary-card rentabilidad">
+        <i class="fas fa-chart-line"></i>
+        <h3>Rentabilidad</h3>
+        <p>0%</p>
+      </div>
+      <div id="top-clientes" class="summary-card top-clientes">
+        <i class="fas fa-user-friends"></i>
+        <h3>Top Clientes</h3>
+        <ul></ul>
+      </div>
+      <div id="productos-mas-vendidos" class="summary-card productos">
+        <i class="fas fa-box-open"></i>
+        <h3>Productos Más Vendidos</h3>
+        <ul></ul>
+      </div>
     </section>
+    
 
-    <!-- Gráficos -->
     <section class="dashboard-charts">
       <div>
+        <canvas id="modoPagoChart"></canvas>
+      </div>
+      <div>
         <canvas id="ingresosPorProductoChart"></canvas>
-      </div>
-      <div>
-        <canvas id="tendenciaIngresosChart"></canvas>
-      </div>
-      <div>
-        <canvas id="estadoPedidosChart"></canvas>
-      </div>
-    </section>
-
-    <!-- Detalles -->
-    <section class="dashboard-details">
-      <div class="card">
-        <h3>Top 5 Clientes</h3>
-        <ul id="top-clientes"></ul>
-      </div>
-      <div class="card">
-        <h3>Pedidos con Mayor Monto</h3>
-        <ul id="top-pedidos"></ul>
       </div>
     </section>
 
