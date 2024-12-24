@@ -16,18 +16,22 @@ tipoSelect.addEventListener('change', () => {
   const tipo = tipoSelect.value;
   medioPagoDiv.style.display = tipo ? 'block' : 'none';
   detalleSalidaDiv.style.display = tipo === 'salida' ? 'block' : 'none';
-  pedidoRelacionadoInput.parentElement.style.display = tipo === 'entrada' ? 'block' : 'none';
+  pedidoRelacionadoInput.parentElement.style.display = ['entrada', 'abono'].includes(tipo) ? 'block' : 'none';
 });
 
 // Cargar pedidos en el input de búsqueda
 async function cargarPedidos() {
+  // Obtener todos los pedidos de Airtable
   const pedidos = await obtenerRegistros('Estado de Pedido');
-  const pedidosFiltrados = pedidos.filter(pedido => ['Pendiente', 'Completado'].includes(pedido.fields.Estado));
+
+  // Filtrar los pedidos con estado 'Pendiente', 'Completado', o 'Abono'
+  const pedidosFiltrados = pedidos.filter(pedido => ['Pendiente', 'Completado', 'Abono'].includes(pedido.fields.Estado));
 
   pedidoRelacionadoInput.addEventListener('input', () => {
     const query = pedidoRelacionadoInput.value.toLowerCase();
     pedidoLista.innerHTML = '';
 
+    // Filtrar los pedidos según la búsqueda
     pedidosFiltrados.forEach(pedido => {
       if (`${pedido.fields.Cliente} - ${pedido.fields.Producto}`.toLowerCase().includes(query)) {
         const li = document.createElement('li');
@@ -75,7 +79,7 @@ function actualizarResumen(movimientos) {
     const medio = mov.fields['Medio de Pago'];
     const tipo = mov.fields.Tipo;
 
-    if (tipo === 'entrada') {
+    if (tipo === 'entrada' || tipo === 'abono') {
       if (medio === 'efectivo') efectivo += monto;
       if (medio === 'banco') banco += monto;
       if (medio === 'zelle') zelle += monto;
@@ -117,12 +121,28 @@ flujoCajaForm.addEventListener('submit', async (e) => {
   try {
     await agregarRegistro('Flujo de Caja', registro);
 
-    if (tipo === 'entrada' && pedidoRelacionadoId) {
-      // Cambiar el estado a "Pagado" del pedido relacionado
-      await actualizarRegistro('Estado de Pedido', pedidoRelacionadoId, { Estado: 'Pagado' });
+    if (pedidoRelacionadoId) {
+      const pedidos = await obtenerRegistros('Estado de Pedido');
+      const pedidoEncontrado = pedidos.find(p => p.id === pedidoRelacionadoId);
+
+      if (pedidoEncontrado && tipo === 'abono') {
+        const montoTotal = pedidoEncontrado.fields.Monto || 0; // Tomar el monto del pedido
+        const montoRestante = (pedidoEncontrado.fields['Monto Restante'] || montoTotal) - monto;
+
+        // Actualizar el pedido con el monto restante
+        await actualizarRegistro('Estado de Pedido', pedidoRelacionadoId, {
+          Estado: montoRestante > 0 ? 'Abono' : 'Pagado', // Si el monto restante es mayor que 0, queda como 'Abono', sino 'Pagado'
+          'Monto Restante': montoRestante > 0 ? montoRestante : 0,
+        });
+      } else if (tipo === 'entrada' && pedidoRelacionadoId) {
+        // Si es una entrada y hay un pedido relacionado, cambiar estado a 'Pagado'
+        await actualizarRegistro('Estado de Pedido', pedidoRelacionadoId, {
+          Estado: 'Pagado',
+        });
+      }
     }
 
-    alert(tipo === 'entrada' ? 'Entrada registrada con éxito' : 'Gasto registrado con éxito');
+    alert(tipo === 'entrada' ? 'Entrada registrada con éxito' : tipo === 'abono' ? 'Abono registrado con éxito' : 'Gasto registrado con éxito');
     cargarHistorial();
   } catch (error) {
     console.error('Error al agregar registro:', error);
