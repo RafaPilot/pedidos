@@ -1,116 +1,147 @@
 import { obtenerRegistros } from './airtable-config.js';
 
-let pedidosOriginales = [];
+let flujoDeCaja = [];
+let pedidos = [];
+let modoPagoChart;
+let ingresosPorProductoChart;
 
 async function cargarDashboard() {
-    pedidosOriginales = await obtenerRegistros('Estado de Pedido');
-    actualizarDashboard(pedidosOriginales);
+  flujoDeCaja = await obtenerRegistros('Flujo de Caja');
+  pedidos = await obtenerRegistros('Pedidos');
+  actualizarDashboard(flujoDeCaja, pedidos);
 }
 
-function actualizarDashboard(pedidos) {
-    // Cálculo de métricas
-    const totalIngresos = pedidos.reduce((sum, p) => sum + (p.fields.Monto || 0), 0);
-    const numeroPedidos = pedidos.length;
-    const ticketPromedio = numeroPedidos ? totalIngresos / numeroPedidos : 0;
-    const margenGanancia = totalIngresos * 0.3; // Ejemplo: 30% de ganancia
-    const clientesUnicos = [...new Set(pedidos.map(p => p.fields.Cliente))].length;
-    const recompra = clientesUnicos ? ((numeroPedidos - clientesUnicos) / clientesUnicos) * 100 : 0;
+function actualizarDashboard(flujo, pedidos) {
+  const filtroMes = document.getElementById('filtro-mes').value;
+  let flujoFiltrado = flujo;
+  let pedidosFiltrados = pedidos;
 
-    // Actualizar métricas en la página
-    document.getElementById('ingresos-totales').innerText = `Ingresos Totales: $${totalIngresos.toFixed(2)}`;
-    document.getElementById('numero-pedidos').innerText = `Número de Pedidos: ${numeroPedidos}`;
-    document.getElementById('ticket-promedio').innerText = `Ticket Promedio: $${ticketPromedio.toFixed(2)}`;
-    document.getElementById('margen-ganancia').innerText = `Margen de Ganancia: $${margenGanancia.toFixed(2)}`;
-    document.getElementById('tasa-recompra').innerText = `Tasa de Recompra: ${recompra.toFixed(2)}%`;
-
-    // Producto Más Vendido (Basado en la primera palabra)
-    const productos = pedidos.reduce((acc, p) => {
-        const producto = (p.fields.Producto || '').split(' ')[0]; // Tomar la primera palabra
-        acc[producto] = (acc[producto] || 0) + 1; // Contar ocurrencias
-        return acc;
-    }, {});
-    const productoMasVendido = Object.entries(productos).sort((a, b) => b[1] - a[1])[0];
-    document.getElementById('producto-mas-vendido').innerText = productoMasVendido ? productoMasVendido[0] : 'N/A';
-
-    // Gráfico: Ingresos por Producto
-    generarGrafico('ingresosPorProductoChart', 'bar', Object.keys(productos), Object.values(productos), 'Productos más vendidos', ['#861e91', '#ed1d99', '#4CAF50', '#F44336', '#FF9800']);
-
-    // Gráfico: Proporción de Ingresos (Completados vs. Pendientes)
-    const ingresosCompletados = pedidos.filter(p => p.fields.Estado === 'Completado').reduce((sum, p) => sum + (p.fields.Monto || 0), 0);
-    const ingresosPendientes = totalIngresos - ingresosCompletados;
-    generarGrafico('estadoPedidosChart', 'doughnut', ['Ingresos Completados', 'Ingresos Pendientes'], [ingresosCompletados, ingresosPendientes], 'Proporción de Ingresos', ['#4CAF50', '#F44336']);
-
-    // Gráfico: Tendencia de Ingresos
-    const ingresosPorMes = pedidos.reduce((acc, p) => {
-        const fechaPedido = new Date(p.fields.Fecha);
-        const mes = `${fechaPedido.getFullYear()}-${String(fechaPedido.getMonth() + 1).padStart(2, '0')}`;
-        acc[mes] = (acc[mes] || 0) + (p.fields.Monto || 0);
-        return acc;
-    }, {});
-    generarGrafico('tendenciaIngresosChart', 'line', Object.keys(ingresosPorMes), Object.values(ingresosPorMes), 'Ingresos por Mes', ['#861e91']);
-
-    // Top 5 Clientes
-    const clientes = pedidos.reduce((acc, p) => {
-        const cliente = p.fields.Cliente || 'Desconocido';
-        acc[cliente] = (acc[cliente] || 0) + (p.fields.Monto || 0);
-        return acc;
-    }, {});
-    const topClientes = Object.entries(clientes).sort((a, b) => b[1] - a[1]).slice(0, 5);
-    const topClientesList = document.getElementById('top-clientes');
-    topClientesList.innerHTML = '';
-    topClientes.forEach(([cliente, monto]) => {
-        const li = document.createElement('li');
-        li.textContent = `${cliente}: $${monto.toFixed(2)}`;
-        topClientesList.appendChild(li);
+  // Aplicar filtros por mes
+  if (filtroMes) {
+    const [anio, mes] = filtroMes.split('-');
+    flujoFiltrado = flujo.filter(f => {
+      const fecha = new Date(f.fields.Fecha);
+      return fecha.getFullYear() === parseInt(anio) && fecha.getMonth() + 1 === parseInt(mes);
     });
-
-    // Pedidos con Mayor Monto
-    const topPedidos = pedidos.sort((a, b) => (b.fields.Monto || 0) - (a.fields.Monto || 0)).slice(0, 5);
-    const topPedidosList = document.getElementById('top-pedidos');
-    topPedidosList.innerHTML = '';
-    topPedidos.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `${p.fields.Producto}: $${p.fields.Monto.toFixed(2)}`;
-        topPedidosList.appendChild(li);
+    pedidosFiltrados = pedidos.filter(p => {
+      const fecha = new Date(p.fields.Fecha);
+      return fecha.getFullYear() === parseInt(anio) && fecha.getMonth() + 1 === parseInt(mes);
     });
+  }
+
+  // Calcular métricas
+  const totalIngresos = flujoFiltrado
+    .filter(f => f.fields.Tipo === 'entrada')
+    .reduce((acc, f) => acc + (f.fields.Monto || 0), 0);
+
+  const totalGastos = flujoFiltrado
+    .filter(f => f.fields.Tipo === 'salida')
+    .reduce((acc, f) => acc + (f.fields.Monto || 0), 0);
+
+  const balanceNeto = totalIngresos - totalGastos;
+  const rentabilidad = totalIngresos > 0 ? ((balanceNeto / totalIngresos) * 100).toFixed(2) : 0;
+
+  // Procesar productos vendidos agrupando por la primera palabra
+  const productosVendidos = pedidosFiltrados.reduce((acc, p) => {
+    const producto = p.fields.Producto.split(' ')[0];
+    acc[producto] = (acc[producto] || 0) + (p.fields.Cantidad || 0);
+    return acc;
+  }, {});
+
+  const productosMasVendidos = Object.entries(productosVendidos)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // Procesar clientes principales
+  const topClientes = pedidosFiltrados.reduce((acc, p) => {
+    const cliente = p.fields.Cliente;
+    acc[cliente] = (acc[cliente] || 0) + (p.fields.Monto || 0);
+    return acc;
+  }, {});
+
+  const topClientesList = Object.entries(topClientes)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // Actualizar métricas y listas
+  actualizarMetrica('ingresos-totales', totalIngresos);
+  actualizarMetrica('gastos-totales', totalGastos);
+  actualizarMetrica('balance-neto', balanceNeto);
+  actualizarMetrica('rentabilidad', rentabilidad + '%');
+  actualizarTopLista('top-clientes', topClientesList, true);
+  actualizarTopLista('productos-mas-vendidos', productosMasVendidos, false);
+
+  // Actualizar gráficas
+  actualizarGraficoPie(flujoFiltrado, 'modoPagoChart', 'Medio de Pago');
+  actualizarGraficoBarras(productosVendidos, 'ingresosPorProductoChart', 'Productos Más Vendidos');
 }
 
-function generarGrafico(id, type, labels, data, label, colors) {
-    new Chart(document.getElementById(id).getContext('2d'), {
-        type,
-        data: {
-            labels,
-            datasets: [{
-                label,
-                data,
-                backgroundColor: colors,
-                borderColor: '#000',
-                borderWidth: 1,
-                hoverBackgroundColor: '#FFD700',
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: { enabled: true }
-            },
-            responsive: true,
-        }
-    });
+function actualizarMetrica(id, valor) {
+  const elemento = document.getElementById(id);
+  if (!elemento) return;
+  elemento.querySelector('p').textContent = typeof valor === 'number' ? `$${valor.toFixed(2)}` : valor;
 }
 
-// Filtros
-document.getElementById('aplicar-filtros').addEventListener('click', () => {
-    const mesSeleccionado = document.getElementById('filtro-mes').value;
-    const pedidosFiltrados = pedidosOriginales.filter(p => {
-        const fechaPedido = new Date(p.fields.Fecha);
-        const mesPedido = `${fechaPedido.getFullYear()}-${String(fechaPedido.getMonth() + 1).padStart(2, '0')}`;
-        return mesSeleccionado === mesPedido;
-    });
-    actualizarDashboard(pedidosFiltrados);
+function actualizarTopLista(id, items, esMoneda = true) {
+  const elemento = document.getElementById(id);
+  if (!elemento) return;
+  const lista = elemento.querySelector('ul');
+  lista.innerHTML = '';
+  items.forEach(([key, value]) => {
+    const li = document.createElement('li');
+    li.textContent = esMoneda ? `${key}: $${value.toFixed(2)}` : `${key}: ${value}`;
+    lista.appendChild(li);
+  });
+}
+
+function actualizarGraficoPie(data, id, key) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+
+  const groupedData = data.reduce((acc, item) => {
+    const label = item.fields[key];
+    acc[label] = (acc[label] || 0) + (item.fields.Monto || 0);
+    return acc;
+  }, {});
+
+  const labels = Object.keys(groupedData);
+  const valores = Object.values(groupedData);
+
+  if (modoPagoChart) modoPagoChart.destroy();
+  modoPagoChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{ data: valores, backgroundColor: ['#4CAF50', '#FFC107', '#E53935', '#2196F3'] }],
+    },
+  });
+}
+
+function actualizarGraficoBarras(data, id, title) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+
+  const labels = Object.keys(data);
+  const valores = Object.values(data);
+
+  if (ingresosPorProductoChart) ingresosPorProductoChart.destroy();
+  ingresosPorProductoChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: valores, label: title, backgroundColor: '#2196F3' }],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+    },
+  });
+}
+
+document.getElementById('aplicar-filtros').addEventListener('click', () => actualizarDashboard(flujoDeCaja, pedidos));
+document.getElementById('resetear-filtros').addEventListener('click', () => {
+  document.getElementById('filtro-mes').value = '';
+  actualizarDashboard(flujoDeCaja, pedidos);
 });
 
-document.getElementById('resetear-filtros').addEventListener('click', () => actualizarDashboard(pedidosOriginales));
-
-// Inicializar Dashboard
 cargarDashboard();
