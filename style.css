@@ -633,6 +633,179 @@ canvas {
     width: 80%;
   }
 }
+
+/* Estilo para el contenedor del buscador */
+#buscador-cliente {
+  display: block;
+  margin: 20px auto;
+  width: 80%;
+  max-width: 400px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #861e91; /* Color principal */
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Cambio de estilo cuando el buscador está en foco */
+#buscador-cliente:focus {
+  border-color: #ed1d99; /* Color secundario */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+/* Animación al escribir en el buscador */
+#buscador-cliente::placeholder {
+  color: #aaa;
+  font-style: italic;
+  transition: color 0.2s ease-in-out;
+}
+
+#buscador-cliente:focus::placeholder {
+  color: transparent;
+}
+
+/* Estilo para el label del buscador */
+label[for="buscador-cliente"] {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #861e91;
+}
+
+/* Estilo para el filtro de selección */
+#filtro-estado {
+  width: 200px;
+  padding: 10px 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #861e91; /* Color principal */
+  background-color: #f7f7f7; /* Fondo claro */
+  border: 2px solid #ed1d99; /* Borde en color secundario */
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease; /* Animación */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Efecto al pasar el mouse por encima */
+#filtro-estado:hover {
+  background-color: #ed1d99; /* Cambiar fondo al color secundario */
+  color: #fff; /* Cambiar texto a blanco */
+  border-color: #861e91; /* Cambiar borde al color principal */
+}
+
+/* Efecto al hacer clic (foco) */
+#filtro-estado:focus {
+  background-color: #fff; /* Fondo blanco */
+  border-color: #861e91; /* Borde más visible */
+  box-shadow: 0 0 10px rgba(134, 30, 145, 0.5); /* Sombra destacada */
+}
+
+/* Estilo para las opciones del select */
+#filtro-estado option {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #861e91;
+  background-color: #fff;
+}
+
+/* Estilos para el buscador en Clientes */
+#buscador-clientes {
+  width: 100%;
+  max-width: 400px; /* Ajusta el ancho máximo */
+  padding: 10px;
+  margin: 15px 0; /* Separación con los elementos de alrededor */
+  border: 2px solid #861e91; /* Color del borde */
+  border-radius: 8px; /* Bordes redondeados */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #333; /* Color del texto */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombras suaves */
+}
+
+#buscador-clientes::placeholder {
+  color: #aaa; /* Color del texto del placeholder */
+  font-style: italic;
+}
+
+/* Efectos al enfocar */
+#buscador-clientes:focus {
+  outline: none;
+  border-color: #ed1d99; /* Color del borde al enfocar */
+  box-shadow: 0 0 8px rgba(237, 29, 153, 0.4); /* Resplandor al enfocar */
+}
+
+/* NUEVO: Estilo Aesthetic para el Dashboard */
+.dashboard-container {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, #861e91, #ed1d99);
+  color: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  width: 300px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Títulos de las tarjetas */
+.card-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #861e91;
+}
+.summary-card{
+  font-weight: bold;
+  color:black;  
+}
+/* Texto dentro de las tarjetas */
+.card-text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Gráficos 3D */
+.chart {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin-top: 20px;
+  transition: all 0.3s ease-in-out;
+}
+
+.chart:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
 /* Estilo para el contenedor del buscador */
 #buscador-cliente {
   display: block;
@@ -737,3 +910,218 @@ label[for="buscador-cliente"] {
   border-color: #ed1d99; /* Color del borde al enfocar */
   box-shadow: 0 0 8px rgba(237, 29, 153, 0.4); /* Resplandor al enfocar */
 }
+
+  .selected-item {
+    display: inline-block;
+    margin: 0.25rem;
+    padding: 0.5rem;
+    background-color: #e1e1e1;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+  .remove-item {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+    color: red;
+    cursor: pointer;
+  }
+  .autocomplete-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    background: white;
+    z-index: 10;
+    width: calc(100% - 2rem);
+  }
+  .autocomplete-list li {
+    padding: 0.5rem;
+    cursor: pointer;
+  }
+  .autocomplete-list li:hover {
+    background-color: #f0f0f0;
+  }
+  .filters {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+  }
+  
+  .filters label,
+  .filters input,
+  .filters button {
+    margin: 0 0.5rem;
+  }
+  
+  .dashboard-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .summary-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .summary-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .ingresos h3 {
+    color: #4CAF50;
+  }
+  
+  .gastos h3 {
+    color: #E53935;
+  }
+  
+  .balance h3 {
+    color: #FFC107;
+  }
+  
+  .rentabilidad h3 {
+    color: #2196F3;
+  }
+  
+  .productos h3 {
+    color: #9C27B0;
+  }
+  
+  .top-clientes h3 {
+    color: #795548;
+  }
+  
+  .summary-card p {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .summary-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .summary-card ul li {
+    margin: 0.3rem 0;
+  }
+  
+  .dashboard-charts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 2rem;
+  }
+  
+  canvas {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+  }
+  
+  .back-link {
+    display: block;
+    text-align: center;
+    margin: 2rem 0;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  .chart-container {
+    text-align: center;
+    margin: 20px auto;
+  }
+  .dashboard-charts canvas {
+    max-width: 600px;
+    max-height: 400px;
+    margin: 0 auto;
+    display: block;
+  }
+  .summary-card {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    transition: transform 0.2s ease;
+  }
+  
+  .summary-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .summary-card i {
+    font-size: 2.5rem;
+    color: #4CAF50;
+    margin-bottom: 10px;
+  }
+  
+  .summary-card.ingresos i {
+    color: #4CAF50;
+  }
+  
+  .summary-card.gastos i {
+    color: #E53935;
+  }
+  
+  .summary-card.balance i {
+    color: #FFC107;
+  }
+  
+  .summary-card.rentabilidad i {
+    color: #2196F3;
+  }
+  
+  .summary-card.top-clientes i {
+    color: #9C27B0;
+  }
+  
+  .summary-card.productos i {
+    color: #FF9800;
+  }
+  
+  .summary-card h3 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    color: #333;
+  }
+  
+  .summary-card p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
+  }
+     
+
