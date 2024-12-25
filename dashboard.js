@@ -16,7 +16,6 @@ function actualizarDashboard(flujo, pedidos) {
   let flujoFiltrado = flujo;
   let pedidosFiltrados = pedidos;
 
-  // Aplicar filtros por mes
   if (filtroMes) {
     const [anio, mes] = filtroMes.split('-');
     flujoFiltrado = flujo.filter(f => {
@@ -29,7 +28,6 @@ function actualizarDashboard(flujo, pedidos) {
     });
   }
 
-  // Calcular métricas
   const totalIngresos = flujoFiltrado
     .filter(f => f.fields.Tipo === 'entrada')
     .reduce((acc, f) => acc + (f.fields.Monto || 0), 0);
@@ -41,7 +39,11 @@ function actualizarDashboard(flujo, pedidos) {
   const balanceNeto = totalIngresos - totalGastos;
   const rentabilidad = totalIngresos > 0 ? ((balanceNeto / totalIngresos) * 100).toFixed(2) : 0;
 
-  // Procesar productos vendidos agrupando por la primera palabra
+  const margenGanancia = totalIngresos > 0 ? ((totalIngresos - totalGastos) / totalIngresos * 100).toFixed(2) : 0;
+
+  const totalClientes = [...new Set(pedidosFiltrados.map(p => p.fields.Cliente))].length;
+  const ventasPromedioCliente = totalClientes > 0 ? (totalIngresos / totalClientes).toFixed(2) : 0;
+
   const productosVendidos = pedidosFiltrados.reduce((acc, p) => {
     const producto = p.fields.Producto.split(' ')[0];
     acc[producto] = (acc[producto] || 0) + (p.fields.Cantidad || 0);
@@ -52,7 +54,6 @@ function actualizarDashboard(flujo, pedidos) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  // Procesar clientes principales
   const topClientes = pedidosFiltrados.reduce((acc, p) => {
     const cliente = p.fields.Cliente;
     acc[cliente] = (acc[cliente] || 0) + (p.fields.Monto || 0);
@@ -63,15 +64,15 @@ function actualizarDashboard(flujo, pedidos) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  // Actualizar métricas y listas
   actualizarMetrica('ingresos-totales', totalIngresos);
   actualizarMetrica('gastos-totales', totalGastos);
   actualizarMetrica('balance-neto', balanceNeto);
   actualizarMetrica('rentabilidad', rentabilidad + '%');
+  actualizarMetrica('margen-ganancia', margenGanancia + '%');
+  actualizarMetrica('ventas-promedio-cliente', `$${ventasPromedioCliente}`);
   actualizarTopLista('top-clientes', topClientesList, true);
   actualizarTopLista('productos-mas-vendidos', productosMasVendidos, false);
 
-  // Actualizar gráficas
   actualizarGraficoPie(flujoFiltrado, 'modoPagoChart', 'Medio de Pago');
   actualizarGraficoBarras(productosVendidos, 'ingresosPorProductoChart', 'Productos Más Vendidos');
 }
@@ -145,3 +146,4 @@ document.getElementById('resetear-filtros').addEventListener('click', () => {
 });
 
 cargarDashboard();
+  
